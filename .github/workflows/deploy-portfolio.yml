@@ -44,7 +44,7 @@ jobs:
       - name: Build dev (portfolio-site)
         working-directory: dev-checkout
         env:
-          SITE_BASE: /portfolio-private/dev
+          SITE_BASE: /portfolio/dev
         run: |
           npm install
           npm run build
