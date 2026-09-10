@@ -2,7 +2,7 @@ name: Deploy Portfolio
 
 on:
   push:
-    branches: [main, portfolio-site]
+    branches: [main, dev]
   workflow_dispatch:
 
 permissions:
@@ -24,10 +24,10 @@ jobs:
           ref: main
           path: main-checkout
 
-      - name: Checkout portfolio-site (dev)
+      - name: Checkout dev
         uses: actions/checkout@v4
         with:
-          ref: portfolio-site
+          ref: dev
           path: dev-checkout
 
       - uses: actions/setup-node@v4
@@ -41,7 +41,7 @@ jobs:
           npm install
           npm run build
 
-      - name: Build dev (portfolio-site)
+      - name: Build dev
         working-directory: dev-checkout
         env:
           SITE_BASE: /portfolio/dev
