@@ -70,7 +70,21 @@ const path = Astro.url.pathname;
     </style>
   </head>
   <body>
-    <header class="site-header">
+    <div class="topbar" id="topbar">
+      <div class="top-ribbon">
+        <div class="top-ribbon-clip">
+          <div class="wrap top-ribbon-inner">
+            <span>US Citizen</span>
+            <span class="top-ribbon-sep">&middot;</span>
+            <a href="mailto:rjaa2024@gmail.com">rjaa2024@gmail.com</a>
+            <span class="top-ribbon-sep">&middot;</span>
+            <a href="https://linkedin.com/in/rahulj24" target="_blank" rel="noopener">LinkedIn</a>
+            <span class="top-ribbon-sep">&middot;</span>
+            <a href="https://github.com/rjaa2020" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <header class="site-header">
       <div class="wrap">
         <div class="header-row">
           <a href={base} class="name">Rahul Jain</a>
@@ -95,7 +109,8 @@ const path = Astro.url.pathname;
           })}
         </nav>
       </div>
-    </header>
+      </header>
+    </div>
     <main>
       <slot />
     </main>
@@ -136,4 +151,28 @@ const path = Astro.url.pathname;
 
   setupLightbox();
   document.addEventListener("astro:page-load", setupLightbox);
+
+  function setupRibbonAutoHide() {
+    const topbar = document.getElementById("topbar");
+    if (!topbar) return;
+
+    let lastY = window.scrollY;
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y <= 8) {
+        topbar.classList.remove("ribbon-hidden");
+      } else if (y > lastY) {
+        topbar.classList.add("ribbon-hidden");
+      } else if (y < lastY) {
+        topbar.classList.remove("ribbon-hidden");
+      }
+      lastY = y;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  setupRibbonAutoHide();
+  document.addEventListener("astro:page-load", setupRibbonAutoHide);
 </script>
