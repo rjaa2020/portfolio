@@ -37,7 +37,7 @@ jobs:
       - name: Build main
         working-directory: main-checkout
         env:
-          SITE_BASE: /portfolio/main
+          SITE_BASE: /portfolio
         run: |
           npm install
           npm run build
@@ -52,8 +52,8 @@ jobs:
 
       - name: Assemble branch sites
         run: |
-          mkdir -p site/main site/dev
-          cp -r main-checkout/dist/. site/main/
+          mkdir -p site site/dev
+          cp -r main-checkout/dist/. site/
           cp -r dev-checkout/dist/. site/dev/
 
       - uses: actions/upload-pages-artifact@v3
