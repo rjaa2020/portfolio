@@ -36,10 +36,14 @@ a:hover { text-decoration: underline; }
   padding: 0 24px;
 }
 
-header.site-header {
+.topbar {
   position: sticky;
   top: 0;
   z-index: 1000;
+  background: var(--bg);
+}
+
+header.site-header {
   background: var(--bg);
   padding: 28px 0 10px;
   border-bottom: 1px solid var(--line);
@@ -199,6 +203,59 @@ header.site-header nav a:hover {
   color: var(--muted);
   margin-top: 4px;
   font-size: 16px;
+}
+
+.citizen-note {
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 400;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.top-ribbon {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease;
+  background: #f6f7f9;
+}
+
+.top-ribbon-clip {
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  transition: border-color 0.25s ease;
+}
+
+.topbar.ribbon-hidden .top-ribbon {
+  grid-template-rows: 0fr;
+}
+
+.topbar.ribbon-hidden .top-ribbon-clip {
+  border-color: transparent;
+}
+
+.top-ribbon-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 24px;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.top-ribbon-inner a {
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+.top-ribbon-inner a:hover {
+  color: var(--accent);
+}
+
+.top-ribbon-sep {
+  color: var(--line);
 }
 
 section {
