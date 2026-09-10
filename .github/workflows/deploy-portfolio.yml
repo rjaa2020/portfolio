@@ -18,48 +18,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main (prod)
+      - name: Checkout branch
         uses: actions/checkout@v4
-        with:
-          ref: main
-          path: main-checkout
-
-      - name: Checkout dev
-        uses: actions/checkout@v4
-        with:
-          ref: dev
-          path: dev-checkout
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Build prod (main)
-        if: hashFiles('main-checkout/package.json') != ''
-        working-directory: main-checkout
-        run: |
-          npm install
-          npm run build
-
-      - name: Build dev
-        working-directory: dev-checkout
+      - name: Build site
         env:
-          SITE_BASE: /portfolio/dev
+          SITE_BASE: /portfolio
         run: |
           npm install
           npm run build
-
-      - name: Assemble combined site (prod at root, dev at /dev)
-        run: |
-          mkdir -p site/dev
-          if [ -d main-checkout/dist ]; then
-            cp -r main-checkout/dist/. site/
-          fi
-          cp -r dev-checkout/dist/. site/dev/
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist
 
   deploy:
     needs: build
