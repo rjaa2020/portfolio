@@ -97,6 +97,56 @@ function getUserAgentId() {
   });
 }
 
+
+function trackClick(fields) {
+  const payload = {
+    session_id: getSessionId(),
+    path: window.location.pathname,
+    ...fields,
+  };
+
+  fetch(`${SUPABASE_URL}/rest/v1/clicks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch(() => {
+    // Fail silently, same as page-view tracking.
+  });
+}
+
+// Tracks clicks on hyperlinks and images specifically (not every click),
+// via event delegation so it covers elements added after initial load.
+function setupClickTracking() {
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href]");
+    const img = event.target.closest("img");
+
+    if (img) {
+      trackClick({
+        target_type: "image",
+        href: link ? link.getAttribute("href") : null,
+        src: img.currentSrc || img.src || null,
+        alt: img.getAttribute("alt") || null,
+        link_text: null,
+      });
+    } else if (link) {
+      trackClick({
+        target_type: "link",
+        href: link.getAttribute("href"),
+        src: null,
+        alt: null,
+        link_text: (link.textContent || "").trim().slice(0, 200) || null,
+      });
+    }
+  });
+}
+
 async function trackPageView() {
   const [geoId, userAgentId] = await Promise.all([getGeoId(), getUserAgentId()]);
   const payload = {
@@ -125,3 +175,4 @@ async function trackPageView() {
 
 trackPageView();
 document.addEventListener("astro:page-load", trackPageView);
+setupClickTracking();
