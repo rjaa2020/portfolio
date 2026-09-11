@@ -60,6 +60,40 @@ async function getOrCreateId(cacheKey, rpcName, body) {
 
 // Resolves the visitor's city/region/country via a free, keyless IP
 // geolocation lookup, then exchanges it for a geo_id via get_or_create_geo.
+// Tries ipapi.co first, then falls back to ipwho.is if the first provider
+// fails or comes back without a city (rate-limited, transient network
+// error, etc). Neither can see through a masked IP (iCloud Private Relay,
+// a VPN), since the problem there is that the real IP is never exposed at
+// all — that case will still resolve to "Unknown", by design.
+async function lookupGeo() {
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.city) {
+        return { city: data.city, region: data.region || null, country: data.country_name || null };
+      }
+    }
+  } catch {
+    // fall through to the backup provider
+  }
+
+  try {
+    const res = await fetch("https://ipwho.is/");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.city) {
+        return { city: data.city, region: data.region || null, country: data.country || null };
+      }
+    }
+  } catch {
+    // both providers failed — proceed with "Unknown" rather than dropping
+    // the pageview.
+  }
+
+  return { city: null, region: null, country: null };
+}
+
 async function getGeoId() {
   try {
     const cached = sessionStorage.getItem("pv_geo_id");
@@ -68,21 +102,7 @@ async function getGeoId() {
     // ignore — fall through to a fresh lookup
   }
 
-  let city = null;
-  let region = null;
-  let country = null;
-  try {
-    const res = await fetch("https://ipapi.co/json/");
-    if (res.ok) {
-      const data = await res.json();
-      city = data.city || null;
-      region = data.region || null;
-      country = data.country_name || null;
-    }
-  } catch {
-    // geolocation lookup failed (offline, blocked, rate-limited) — proceed
-    // with an "Unknown" geo rather than dropping the pageview.
-  }
+  const { city, region, country } = await lookupGeo();
 
   return getOrCreateId("pv_geo_id", "get_or_create_geo", {
     p_city: city,
